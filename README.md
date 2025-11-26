@@ -68,31 +68,31 @@ This project demonstrates **all major Kafka concepts** through three progressive
 
 ```mermaid
 graph TB
-    subgraph "Client Layer"
-        Client[REST Client/curl]
+    subgraph Client["Client Layer"]
+        CL[REST Client/curl]
     end
     
-    subgraph "Spring Boot Application :8080"
-        Controller[KafkaController<br/>REST Endpoints]
+    subgraph App["Spring Boot Application :8080"]
+        Controller[KafkaController REST Endpoints]
         
-        subgraph "Beginner Level"
+        subgraph Beginner["Beginner Level"]
             BP[BasicProducer]
             BC[BasicConsumer]
         end
         
-        subgraph "Intermediate Level"
+        subgraph Intermediate["Intermediate Level"]
             JP[JsonProducer]
             JC[JsonConsumer]
         end
         
-        subgraph "Advanced Level"
-            AP[AdvancedProducer<br/>@Transactional]
-            AC[AdvancedConsumer<br/>Retry + DLQ]
+        subgraph Advanced["Advanced Level"]
+            AP[AdvancedProducer Transactional]
+            AC[AdvancedConsumer Retry DLQ]
             DLT[DLT Consumer]
         end
         
-        subgraph "Configuration Layer"
-            Config[KafkaConfig<br/>Bean Definitions]
+        subgraph Config["Configuration Layer"]
+            KConfig[KafkaConfig Bean Definitions]
             BTmpl[basicKafkaTemplate]
             UTmpl[userKafkaTemplate]
             ATmpl[advancedKafkaTemplate]
@@ -100,24 +100,22 @@ graph TB
         end
     end
     
-    subgraph "Kafka Cluster :9093"
-        subgraph "Topics"
-            T1[mastery-beginner-topic<br/>3 partitions]
-            T2[mastery-json-topic<br/>3 partitions]
-            T3[mastery-advanced-topic<br/>3 partitions]
-            T4[mastery-advanced-topic.DLT<br/>Dead Letter Topic]
-        end
+    subgraph Kafka["Kafka Cluster :9093"]
+        T1[mastery-beginner-topic 3 partitions]
+        T2[mastery-json-topic 3 partitions]
+        T3[mastery-advanced-topic 3 partitions]
+        T4[mastery-advanced-topic.DLT Dead Letter Topic]
     end
     
-    Client -->|HTTP POST| Controller
+    CL -->|HTTP POST| Controller
     Controller --> BP
     Controller --> JP
     Controller --> AP
     
-    Config -.->|provides| BTmpl
-    Config -.->|provides| UTmpl
-    Config -.->|provides| ATmpl
-    Config -.->|provides| TxMgr
+    KConfig -.->|provides| BTmpl
+    KConfig -.->|provides| UTmpl
+    KConfig -.->|provides| ATmpl
+    KConfig -.->|provides| TxMgr
     
     BP -->|uses| BTmpl
     JP -->|uses| UTmpl
@@ -134,9 +132,9 @@ graph TB
     AC -->|on failure| T4
     T4 -->|consume| DLT
     
-    style Client fill:#e1f5ff
+    style CL fill:#e1f5ff
     style Controller fill:#fff4e1
-    style Config fill:#f0f0f0
+    style KConfig fill:#f0f0f0
     style T1 fill:#c8e6c9
     style T2 fill:#c8e6c9
     style T3 fill:#c8e6c9
