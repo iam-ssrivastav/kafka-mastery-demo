@@ -1,13 +1,21 @@
-# Kafka Mastery - From Beginner to Advanced
+<p align="center">
+  <img src="logo.png" alt="Kafka Mastery Logo" width="300"/>
+</p>
 
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Kafka](https://img.shields.io/badge/Apache%20Kafka-7.5.0-black.svg)](https://kafka.apache.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<h1 align="center">Kafka Mastery - From Beginner to Advanced</h1>
 
-**Author:** Shivam Srivastav
+<p align="center">
+  <a href="https://www.oracle.com/java/"><img src="https://img.shields.io/badge/Java-17-orange.svg" alt="Java"></a>
+  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-3.2.3-brightgreen.svg" alt="Spring Boot"></a>
+  <a href="https://kafka.apache.org/"><img src="https://img.shields.io/badge/Apache%20Kafka-7.5.0-black.svg" alt="Kafka"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
+</p>
 
+<p align="center"><strong>Author:</strong> Shivam Srivastav</p>
+
+<p align="center">
 A comprehensive Spring Boot application demonstrating Apache Kafka concepts from beginner to advanced levels. This project serves as a complete learning resource with extensive documentation, comments, and real-world examples.
+</p>
 
 ---
 
@@ -66,117 +74,15 @@ This project demonstrates **all major Kafka concepts** through three progressive
 
 ### Overall System Architecture
 
-```mermaid
-graph TB
-    subgraph Client["Client Layer"]
-        CL[REST Client/curl]
-    end
-    
-    subgraph App["Spring Boot Application :8080"]
-        Controller[KafkaController REST Endpoints]
-        
-        subgraph Beginner["Beginner Level"]
-            BP[BasicProducer]
-            BC[BasicConsumer]
-        end
-        
-        subgraph Intermediate["Intermediate Level"]
-            JP[JsonProducer]
-            JC[JsonConsumer]
-        end
-        
-        subgraph Advanced["Advanced Level"]
-            AP[AdvancedProducer Transactional]
-            AC[AdvancedConsumer Retry DLQ]
-            DLT[DLT Consumer]
-        end
-        
-        subgraph Config["Configuration Layer"]
-            KConfig[KafkaConfig Bean Definitions]
-            BTmpl[basicKafkaTemplate]
-            UTmpl[userKafkaTemplate]
-            ATmpl[advancedKafkaTemplate]
-            TxMgr[KafkaTransactionManager]
-        end
-    end
-    
-    subgraph Kafka["Kafka Cluster :9093"]
-        T1[mastery-beginner-topic 3 partitions]
-        T2[mastery-json-topic 3 partitions]
-        T3[mastery-advanced-topic 3 partitions]
-        T4[mastery-advanced-topic.DLT Dead Letter Topic]
-    end
-    
-    CL -->|HTTP POST| Controller
-    Controller --> BP
-    Controller --> JP
-    Controller --> AP
-    
-    KConfig -.->|provides| BTmpl
-    KConfig -.->|provides| UTmpl
-    KConfig -.->|provides| ATmpl
-    KConfig -.->|provides| TxMgr
-    
-    BP -->|uses| BTmpl
-    JP -->|uses| UTmpl
-    AP -->|uses| ATmpl
-    AP -->|uses| TxMgr
-    
-    BTmpl -->|String| T1
-    UTmpl -->|JSON| T2
-    ATmpl -->|Transactional| T3
-    
-    T1 -->|consume| BC
-    T2 -->|consume| JC
-    T3 -->|consume| AC
-    AC -->|on failure| T4
-    T4 -->|consume| DLT
-    
-    style CL fill:#e1f5ff
-    style Controller fill:#fff4e1
-    style KConfig fill:#f0f0f0
-    style T1 fill:#c8e6c9
-    style T2 fill:#c8e6c9
-    style T3 fill:#c8e6c9
-    style T4 fill:#ffcdd2
-```
+![System Architecture](docs/images/architecture-overview.png)
 
 ### Dead Letter Queue Flow
 
-```mermaid
-sequenceDiagram
-    participant Producer as AdvancedProducer
-    participant Topic as mastery-advanced-topic
-    participant Consumer as AdvancedConsumer
-    participant ErrorHandler as DefaultErrorHandler
-    participant DLT as mastery-advanced-topic.DLT
-    participant DLTConsumer as DLT Consumer
-    
-    Producer->>Topic: Publish "error"
-    Topic->>Consumer: Poll message
-    Consumer->>Consumer: throw RuntimeException
-    Consumer-->>ErrorHandler: Exception
-    
-    Note over ErrorHandler: Retry 1 of 3
-    ErrorHandler->>ErrorHandler: Wait 1s
-    ErrorHandler->>Consumer: Retry
-    Consumer->>Consumer: throw RuntimeException
-    
-    Note over ErrorHandler: Retry 2 of 3
-    ErrorHandler->>ErrorHandler: Wait 1s
-    ErrorHandler->>Consumer: Retry
-    Consumer->>Consumer: throw RuntimeException
-    
-    Note over ErrorHandler: Retry 3 of 3
-    ErrorHandler->>ErrorHandler: Wait 1s
-    ErrorHandler->>Consumer: Retry
-    Consumer->>Consumer: throw RuntimeException
-    
-    Note over ErrorHandler: All retries exhausted
-    ErrorHandler->>DLT: Publish to DLT
-    DLT->>DLTConsumer: Poll failed message
-    DLTConsumer->>DLTConsumer: log.warn("Received in DLT")
-```
+![DLQ Flow](docs/images/dlq-flow.png)
+
+### Transaction Flow (Success vs Rollback)
+
+![Transaction Flow](docs/images/transaction-flow.png)
 
 ---
 
